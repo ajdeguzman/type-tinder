@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>Type Tinder — Do These Types Match?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #f5f0ff;
+  --card: #ffffff;
+  --card-border: #e0d6f0;
+  --surface: #f0eaf8;
+  --text: #1a1033;
+  --text-dim: #6b5f80;
+  --accent: #e8175d;
+  --accent2: #5b2dcc;
+  --green: #0d8a3f;
+  --green-bg: #e6f7ed;
+  --green-border: #a3e0bc;
+  --red: #c0123c;
+  --red-bg: #fce8ed;
+  --red-border: #f0a8b8;
+  --gold: #b8860b;
+  --glow-match: rgba(13, 138, 63, 0.18);
+  --glow-no: rgba(192, 18, 60, 0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text);
+  display: flex; justify-content: center; align-items: center; position: relative;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse 700px 700px at 15% 10%, rgba(91,45,204,0.06), transparent),
+              radial-gradient(ellipse 600px 600px at 85% 85%, rgba(232,23,93,0.04), transparent);
+}
+#app {
+  width: 100%; max-width: 420px; height: 100dvh; max-height: 900px;
+  display: flex; flex-direction: column; position: relative; z-index: 1; padding: 16px; overflow: hidden;
+}
+
+/* ─── Common ─── */
+.header { text-align: center; padding: 8px 0 12px; flex-shrink: 0; }
+.logo { font-size: 28px; font-weight: 900; letter-spacing: -0.03em; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.logo span { font-size: 18px; }
+.round-label { font-size: 13px; font-weight: 600; color: var(--text-dim); margin-top: 4px; letter-spacing: 0.04em; text-transform: uppercase; }
+.round-name { font-size: 16px; font-weight: 700; margin-top: 2px; color: var(--text); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── Lang badges ─── */
+.lang-badges { display: flex; justify-content: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.lang-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.04em; }
+.lang-java { background: #fce8ed; color: var(--accent); border: 1px solid #f0a8b8; }
+.lang-cpp { background: #ede6fa; color: var(--accent2); border: 1px solid #c4b0f0; }
+.lang-python { background: #fef6e0; color: var(--gold); border: 1px solid #e8d49a; }
+
+/* ─── Splash ─── */
+.splash { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; animation: fadeIn 0.6s ease; }
+.splash-icon { font-size: 80px; margin-bottom: 12px; }
+.splash-title { font-size: 36px; font-weight: 900; letter-spacing: -0.03em; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.splash-sub { font-size: 16px; color: var(--text-dim); max-width: 300px; line-height: 1.6; margin: 8px 0 4px; font-weight: 500; }
+.splash-rules { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; width: 100%; max-width: 320px; }
+.splash-rule { display: flex; align-items: center; gap: 12px; background: var(--card); border: 2px solid var(--card-border); border-radius: 14px; padding: 12px 16px; text-align: left; box-shadow: 0 2px 8px rgba(26,16,51,0.05); }
+.splash-rule-icon { font-size: 24px; flex-shrink: 0; }
+.splash-rule-text { font-size: 13px; color: var(--text-dim); line-height: 1.4; font-weight: 500; }
+.splash-rule-text strong { color: var(--text); font-weight: 700; }
+.start-btn, .primary-btn { margin-top: 20px; padding: 16px 48px; border-radius: 50px; border: none; font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; cursor: pointer; color: white; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 4px 24px rgba(232,23,93,0.25); transition: all 0.2s; }
+.start-btn:hover, .primary-btn:hover { transform: scale(1.05); box-shadow: 0 8px 32px rgba(232,23,93,0.35); }
+.primary-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ─── Language Select ─── */
+.lang-select { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; animation: fadeIn 0.4s ease; }
+.lang-select-title { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+.lang-select-sub { font-size: 14px; color: var(--text-dim); margin-bottom: 24px; font-weight: 500; max-width: 280px; line-height: 1.5; }
+.lang-options { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 300px; }
+.lang-option {
+  display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+  background: var(--card); border: 2.5px solid var(--card-border); border-radius: 16px;
+  cursor: pointer; transition: all 0.2s; user-select: none;
+  box-shadow: 0 2px 8px rgba(26,16,51,0.05);
+}
+.lang-option:hover { border-color: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(91,45,204,0.12); }
+.lang-option.selected { border-color: var(--accent2); background: #ede6fa; box-shadow: 0 4px 16px rgba(91,45,204,0.15); }
+.lang-option-icon { font-size: 32px; flex-shrink: 0; }
+.lang-option-info { text-align: left; flex: 1; }
+.lang-option-name { font-size: 18px; font-weight: 700; color: var(--text); }
+.lang-option-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-weight: 500; }
+.lang-option-check {
+  width: 26px; height: 26px; border-radius: 8px; border: 2.5px solid var(--card-border);
+  display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 900;
+  color: transparent; transition: all 0.2s; flex-shrink: 0;
+}
+.lang-option.selected .lang-option-check { background: var(--accent2); border-color: var(--accent2); color: white; }
+.lang-select-hint { font-size: 12px; color: var(--text-dim); margin-top: 20px; font-weight: 500; opacity: 0.7; }
+
+/* ─── Progress ─── */
+.progress-bar { display: flex; gap: 4px; padding: 10px 0; flex-shrink: 0; }
+.progress-dot { flex: 1; height: 5px; border-radius: 3px; background: var(--card-border); transition: background 0.3s, box-shadow 0.3s; }
+.progress-dot.done { background: var(--green); }
+.progress-dot.wrong { background: var(--red); }
+.progress-dot.active { background: var(--accent2); box-shadow: 0 0 8px rgba(91,45,204,0.35); }
+
+/* ─── Card ─── */
+.card-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; }
+.type-card {
+  width: 100%; max-width: 360px; background: var(--card); border: 2px solid var(--card-border);
+  border-radius: 24px; padding: 28px 24px; position: relative; touch-action: pan-y;
+  user-select: none; transition: box-shadow 0.2s, border-color 0.2s; cursor: grab;
+  box-shadow: 0 4px 20px rgba(26,16,51,0.08);
+}
+.type-card:active { cursor: grabbing; }
+.type-card.swiping-right { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-border), 0 8px 32px var(--glow-match); }
+.type-card.swiping-left { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-border), 0 8px 32px var(--glow-no); }
+.card-lang-tag { position: absolute; top: 12px; right: 16px; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.04em; }
+.card-question { text-align: center; font-size: 14px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px; }
+.versus-container { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 20px; }
+.type-block {
+  flex: 1; background: var(--surface); border: 2px solid var(--card-border); border-radius: 16px;
+  padding: 16px 12px; text-align: center; min-height: 100px; display: flex; flex-direction: column; justify-content: center;
+}
+.type-name { font-family: 'Fira Code', monospace; font-size: 16px; font-weight: 600; color: var(--accent2); margin-bottom: 6px; word-break: break-word; }
+.type-structure { font-family: 'Fira Code', monospace; font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+.versus-badge { font-size: 22px; font-weight: 900; color: var(--accent); flex-shrink: 0; }
+.card-hint { text-align: center; font-size: 12px; font-weight: 500; color: var(--text-dim); margin-top: 16px; padding: 10px 16px; background: var(--surface); border-radius: 12px; border: 1px solid var(--card-border); line-height: 1.5; }
+.swipe-indicator { position: absolute; top: 20px; font-size: 22px; font-weight: 900; padding: 6px 18px; border-radius: 12px; opacity: 0; transition: opacity 0.15s; pointer-events: none; text-transform: uppercase; letter-spacing: 0.06em; }
+.swipe-indicator.match { right: 16px; color: var(--green); border: 3px solid var(--green); background: var(--green-bg); }
+.swipe-indicator.nope { left: 16px; color: var(--red); border: 3px solid var(--red); background: var(--red-bg); }
+.swipe-indicator.visible { opacity: 1; }
+
+/* ─── Actions ─── */
+.actions { display: flex; justify-content: center; gap: 20px; padding: 16px 0; flex-shrink: 0; }
+.action-btn {
+  width: 72px; height: 72px; border-radius: 50%; border: 3px solid; background: var(--card);
+  display: flex; align-items: center; justify-content: center; font-size: 30px; cursor: pointer;
+  transition: all 0.2s; box-shadow: 0 2px 10px rgba(26,16,51,0.08);
+}
+.action-btn.no-btn { border-color: var(--red); color: var(--red); }
+.action-btn.no-btn:hover,.action-btn.no-btn:active { background: var(--red); color: white; box-shadow: 0 4px 20px var(--glow-no); transform: scale(1.1); }
+.action-btn.yes-btn { border-color: var(--green); color: var(--green); }
+.action-btn.yes-btn:hover,.action-btn.yes-btn:active { background: var(--green); color: white; box-shadow: 0 4px 20px var(--glow-match); transform: scale(1.1); }
+.swipe-hint { text-align: center; font-size: 12px; font-weight: 500; color: var(--text-dim); padding-bottom: 12px; flex-shrink: 0; opacity: 0.7; }
+
+/* ─── Result ─── */
+.result-overlay { position: absolute; inset: 0; background: rgba(245,240,255,0.94); backdrop-filter: blur(12px); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; padding: 24px; animation: fadeIn 0.3s ease; }
+.result-emoji { font-size: 56px; margin-bottom: 12px; }
+.result-verdict { font-size: 26px; font-weight: 800; margin-bottom: 8px; }
+.result-verdict.correct { color: var(--green); }
+.result-verdict.wrong { color: var(--red); }
+.result-explain { font-size: 14px; color: var(--text-dim); text-align: center; line-height: 1.7; max-width: 320px; margin-bottom: 24px; }
+.result-explain strong { color: var(--text); font-weight: 700; }
+.result-explain code { font-family: 'Fira Code', monospace; font-size: 13px; background: var(--surface); padding: 1px 6px; border-radius: 4px; color: var(--accent2); border: 1px solid var(--card-border); }
+.next-btn { padding: 14px 40px; border-radius: 50px; border: none; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; color: white; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 4px 16px rgba(91,45,204,0.25); }
+.next-btn:hover { transform: scale(1.05); box-shadow: 0 6px 24px rgba(91,45,204,0.35); }
+
+/* ─── Final ─── */
+.final-screen { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; animation: fadeIn 0.5s ease; }
+.final-emoji { font-size: 72px; margin-bottom: 8px; }
+.final-score { font-size: 52px; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.final-label { font-size: 22px; font-weight: 800; color: var(--text); margin-top: 4px; }
+.final-subtitle { font-size: 14px; color: var(--text-dim); max-width: 300px; line-height: 1.6; margin-top: 4px; }
+.final-breakdown { display: flex; gap: 12px; margin-top: 20px; }
+.breakdown-item { background: var(--card); border: 2px solid var(--card-border); border-radius: 16px; padding: 14px 20px; text-align: center; box-shadow: 0 2px 8px rgba(26,16,51,0.06); }
+.breakdown-num { font-size: 28px; font-weight: 800; }
+.breakdown-num.green { color: var(--green); }
+.breakdown-num.red { color: var(--red); }
+.breakdown-lbl { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; font-weight: 600; }
+.restart-btn { margin-top: 28px; padding: 14px 40px; border-radius: 50px; border: 2px solid var(--accent2); background: transparent; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent2); cursor: pointer; transition: all 0.2s; }
+.restart-btn:hover { background: var(--accent2); color: white; }
+
+/* ─── Round transition ─── */
+.round-transition { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; animation: fadeIn 0.4s ease; }
+.round-transition .round-num { font-size: 14px; font-weight: 700; color: var(--accent2); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.round-transition .round-title { font-size: 28px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+.round-transition .round-desc { font-size: 14px; color: var(--text-dim); max-width: 300px; line-height: 1.6; margin-bottom: 24px; font-weight: 500; }
+
+/* ─── Animations ─── */
+@keyframes swipeRight { to { transform: translateX(150%) rotate(20deg); opacity: 0; } }
+@keyframes swipeLeft { to { transform: translateX(-150%) rotate(-20deg); opacity: 0; } }
+.card-exit-right { animation: swipeRight 0.35s ease forwards; }
+.card-exit-left { animation: swipeLeft 0.35s ease forwards; }
+
+@media (max-height: 680px) {
+  .type-block { padding: 12px 10px; min-height: 80px; }
+  .type-name { font-size: 14px; }
+  .action-btn { width: 60px; height: 60px; font-size: 26px; }
+  .splash-icon { font-size: 60px; }
+  .splash-title { font-size: 28px; }
+  .lang-option { padding: 12px 16px; }
+  .lang-option-icon { font-size: 26px; }
+  .lang-option-name { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+// ─── All question data, tagged by language ───────────────────────────
+const allRounds = [
+  {
+    name: "Name Type Equivalence",
+    subtitle: "Round 1 — First Impressions",
+    desc: "Types match only if they share the exact same type name. Internal structure doesn't matter!",
+    pairs: [
+      { lang:"Java", left:{name:"String",structure:"java.lang.String"}, right:{name:"String",structure:"java.lang.String"}, answer:true,
+        explain:"Same class name <strong>String</strong> in Java → equivalent under name type equivalence. Both refer to the exact same class." },
+      { lang:"Java", left:{name:"class Dog",structure:"{ String name; int age; }"}, right:{name:"class Cat",structure:"{ String name; int age; }"}, answer:false,
+        explain:"Java uses <strong>name equivalence</strong> for classes. Dog and Cat have identical fields, but they are <strong>different class names</strong> → not equivalent. A Dog is not a Cat!" },
+      { lang:"Java", left:{name:"class Celsius",structure:"{ double value; }"}, right:{name:"class Fahrenheit",structure:"{ double value; }"}, answer:false,
+        explain:"Different class names! Java's name equivalence says <strong>Celsius ≢ Fahrenheit</strong>. This is actually <strong>good</strong> — you don't want to accidentally mix temperature scales." },
+      { lang:"C++", left:{name:"struct Point",structure:"{ int x; int y; }"}, right:{name:"struct Coord",structure:"{ int x; int y; }"}, answer:false,
+        explain:"Identical fields, but <strong>different struct names</strong>. In C++, each struct/class declaration creates a unique type. <strong>Point ≢ Coord</strong>, even with the same members." },
+      { lang:"C++", left:{name:"int[10]",structure:"array of 10 ints"}, right:{name:"int[10]",structure:"array of 10 ints"}, answer:true,
+        explain:"In C++, arrays use <strong>structural compatibility</strong> — same element type and size makes them compatible. Both are <code>int[10]</code> → equivalent!" },
+      { lang:"Python", left:{name:"type(x)",structure:'x = 42 → int'}, right:{name:"type(y)",structure:'y = 42 → int'}, answer:true,
+        explain:"In Python, types are checked at <strong>runtime</strong>. Both values are <code>int</code> → same type name. Python uses name-based identity for built-in types." },
+      { lang:"Python", left:{name:"class Dog",structure:"name: str"}, right:{name:"class Cat",structure:"name: str"}, answer:false,
+        explain:"Even in Python, <code>Dog</code> and <code>Cat</code> are <strong>different classes</strong>. An <code>isinstance()</code> check would fail. Under name equivalence, they are not the same type." },
+    ]
+  },
+  {
+    name: "Structure Type Equivalence",
+    subtitle: "Round 2 — Looking Deeper",
+    desc: "Now types match if their internal structure is identical — names are ignored!",
+    pairs: [
+      { lang:"C++", left:{name:"struct Vec2",structure:"{ float x; float y; }"}, right:{name:"struct Point2D",structure:"{ float x; float y; }"}, answer:true,
+        explain:"Under <strong>structure equivalence</strong>, both have the same layout: two floats named x and y. Structurally identical → equivalent! (Note: C++ actually uses name equivalence for structs.)" },
+      { lang:"C++", left:{name:"struct A",structure:"{ int x; float y; }"}, right:{name:"struct B",structure:"{ int a; float b; }"}, answer:false,
+        explain:"Same field types (<strong>int, float</strong>) but <strong>different field names</strong> (x,y vs a,b). Most structure equivalence definitions require matching field names too. Not equivalent!" },
+      { lang:"Java", left:{name:"int[]",structure:"array of integers"}, right:{name:"int[]",structure:"array of integers"}, answer:true,
+        explain:"Same element type <strong>int</strong>, same array structure. Structurally identical → equivalent. Java treats arrays of the same element type as the same type." },
+      { lang:"Java", left:{name:"ArrayList<String>",structure:"dynamic list of Strings"}, right:{name:"LinkedList<String>",structure:"dynamic list of Strings"}, answer:false,
+        explain:"Same content type but <strong>different container classes</strong>. Under structure equivalence, the internal implementation differs (array vs linked nodes). Not equivalent!" },
+      { lang:"Python", left:{name:"dict",structure:'{"name": str, "age": int}'}, right:{name:"dict",structure:'{"name": str, "age": int}'}, answer:true,
+        explain:"Python dicts with the same keys and value types are <strong>structurally equivalent</strong>. Python uses structural compatibility — if it has the right shape, it works!" },
+      { lang:"Python", left:{name:"class Dog",structure:"name: str, speak()"}, right:{name:"class Cat",structure:"name: str, speak()"}, answer:true,
+        explain:"Python uses <strong>duck typing</strong> — a form of structural equivalence. If it has a <code>name</code> attribute and a <code>speak()</code> method, it works! \"If it quacks like a duck…\"" },
+    ]
+  },
+  {
+    name: "Type Conversion",
+    subtitle: "Round 3 — It's Complicated",
+    desc: "Can these types be converted to work together? Swipe right if conversion is possible.",
+    pairs: [
+      { lang:"Java", left:{name:"int",structure:"32-bit, ~9 digits"}, right:{name:"float",structure:"32-bit, ~7 digits"}, answer:true,
+        explain:"Java does this <strong>implicitly</strong> (widening coercion). But you lose up to 2 digits of precision! <code>123456789</code> becomes <code>1.23456792E8</code>." },
+      { lang:"Java", left:{name:"String",structure:'"hello"'}, right:{name:"int",structure:"whole number"}, answer:false,
+        explain:"Java does <strong>NOT</strong> allow direct conversion from String to int. You need <code>Integer.parseInt(\"42\")</code> — that's a method call, not a type conversion." },
+      { lang:"Java", left:{name:"byte",structure:"8-bit integer"}, right:{name:"int",structure:"32-bit integer"}, answer:true,
+        explain:"<strong>Widening conversion</strong> — happens automatically in Java! When you use a byte in an expression, it's <strong>implicitly coerced to int</strong>. Always safe." },
+      { lang:"C++", left:{name:"double",structure:"64-bit floating point"}, right:{name:"int",structure:"32-bit integer"}, answer:true,
+        explain:"C++ allows this with an explicit cast: <code>(int) myDouble</code>. This is a <strong>narrowing conversion</strong> — the decimal part is truncated. <code>3.99</code> becomes <code>3</code>." },
+      { lang:"C++", left:{name:"bool",structure:"true / false"}, right:{name:"int",structure:"0 or 1"}, answer:true,
+        explain:"C++ <strong>implicitly converts</strong> bool to int: <code>true → 1</code>, <code>false → 0</code>. You can even do <code>true + true == 2</code>!" },
+      { lang:"C++", left:{name:"std::string",structure:'"42"'}, right:{name:"int",structure:"whole number"}, answer:false,
+        explain:"C++ does <strong>NOT</strong> implicitly convert strings to ints. You need <code>std::stoi(\"42\")</code> — an explicit function call, not a cast." },
+      { lang:"Python", left:{name:"str",structure:'"42"'}, right:{name:"int",structure:"whole number"}, answer:true,
+        explain:"Python allows this via <code>int(\"42\")</code> — an <strong>explicit conversion</strong>. But <code>int(\"hello\")</code> would crash with a ValueError!" },
+      { lang:"Python", left:{name:"list",structure:"[1, 2, 3]"}, right:{name:"tuple",structure:"(1, 2, 3)"}, answer:true,
+        explain:"Python allows <code>tuple([1,2,3])</code> and <code>list((1,2,3))</code> — explicit conversions between sequence types." },
+      { lang:"Python", left:{name:"int",structure:"42"}, right:{name:"float",structure:"42.0"}, answer:true,
+        explain:"Python <strong>implicitly widens</strong> int to float in expressions: <code>42 + 3.14</code> automatically promotes 42 to 42.0. This is a safe widening coercion." },
+    ]
+  }
+];
+
+const langMeta = {
+  "Java":   { icon: "☕", desc: "Strongly typed, name equivalence for classes", cls: "lang-java" },
+  "C++":    { icon: "⚙️", desc: "Name equivalence for structs, many implicit coercions", cls: "lang-cpp" },
+  "Python": { icon: "🐍", desc: "Dynamic typing, duck typing, explicit conversions", cls: "lang-python" },
+};
+
+// ─── State ───────────────────────────────────────────────────────────
+let state = { screen:'splash', selectedLangs:[], roundIdx:0, pairIdx:0, correct:0, wrong:0, lastAnswer:null, results:[], swipeX:0, filteredRounds:[] };
+
+function buildFilteredRounds() {
+  state.filteredRounds = allRounds.map(r => ({
+    ...r,
+    pairs: r.pairs.filter(p => state.selectedLangs.includes(p.lang))
+  })).filter(r => r.pairs.length > 0);
+}
+function totalPairs() { return state.filteredRounds.reduce((a,r)=>a+r.pairs.length,0); }
+function globalIdx() { let i=0; for(let j=0;j<state.roundIdx;j++) i+=state.filteredRounds[j].pairs.length; return i+state.pairIdx; }
+
+// ─── Render ──────────────────────────────────────────────────────────
+function render() {
+  const app=document.getElementById('app');
+  ({splash:renderSplash, langSelect:renderLangSelect, roundIntro:renderRoundIntro, playing:renderPlaying, result:renderResult, final:renderFinal})[state.screen](app);
+}
+
+function renderSplash(app) {
+  app.innerHTML = `
+    <div class="splash">
+      <div class="splash-icon">💘</div>
+      <div class="splash-title">Type Tinder</div>
+      <div class="splash-sub">Do these types match? Swipe to find out!</div>
+      <div class="splash-rules">
+        <div class="splash-rule"><div class="splash-rule-icon">👉</div><div class="splash-rule-text"><strong>Swipe right</strong> or tap <strong>✓</strong> if the types are equivalent / compatible</div></div>
+        <div class="splash-rule"><div class="splash-rule-icon">👈</div><div class="splash-rule-text"><strong>Swipe left</strong> or tap <strong>✗</strong> if they are NOT equivalent / compatible</div></div>
+        <div class="splash-rule"><div class="splash-rule-icon">🧠</div><div class="splash-rule-text"><strong>3 rounds</strong> — the rules change each round, so the same pair might get a different answer!</div></div>
+      </div>
+      <button class="start-btn" onclick="goToLangSelect()">Let's Go!</button>
+    </div>`;
+}
+
+function renderLangSelect(app) {
+  const langs = ["Java", "C++", "Python"];
+  app.innerHTML = `
+    <div class="header"><div class="logo">Type Tinder <span>💘</span></div></div>
+    <div class="lang-select">
+      <div class="lang-select-title">Choose Your Languages</div>
+      <div class="lang-select-sub">Pick the languages you want to be quizzed on. You can select one or more!</div>
+      <div class="lang-options">
+        ${langs.map(l => {
+          const m = langMeta[l];
+          const sel = state.selectedLangs.includes(l);
+          return `<div class="lang-option ${sel?'selected':''}" onclick="toggleLang('${l}')">
+            <div class="lang-option-icon">${m.icon}</div>
+            <div class="lang-option-info">
+              <div class="lang-option-name">${l}</div>
+              <div class="lang-option-desc">${m.desc}</div>
+            </div>
+            <div class="lang-option-check">${sel?'✓':''}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="lang-select-hint">${state.selectedLangs.length === 0 ? 'Select at least one language to continue' : state.selectedLangs.join(' + ') + ' selected'}</div>
+      <button class="primary-btn" onclick="startGame()" ${state.selectedLangs.length===0?'disabled':''}>Start Game</button>
+    </div>`;
+}
+
+function renderRoundIntro(app) {
+  const r=state.filteredRounds[state.roundIdx];
+  const badges = state.selectedLangs.map(l => `<span class="lang-badge ${langMeta[l].cls}">${l}</span>`).join('');
+  app.innerHTML = `
+    <div class="header"><div class="logo">Type Tinder <span>💘</span></div></div>
+    <div class="round-transition">
+      <div class="round-num">${r.subtitle}</div>
+      <div class="round-title">${r.name}</div>
+      <div class="round-desc">${r.desc}</div>
+      <div class="lang-badges" style="margin-bottom:24px">${badges}</div>
+      <button class="next-btn" onclick="startRound()">Ready!</button>
+    </div>`;
+}
+
+function renderPlaying(app) {
+  const r=state.filteredRounds[state.roundIdx], p=r.pairs[state.pairIdx], gi=globalIdx(), tp=totalPairs();
+  const sm=state.swipeX>40, sn=state.swipeX<-40;
+  const lc=langMeta[p.lang]||langMeta["Java"];
+  app.innerHTML = `
+    <div class="header">
+      <div class="logo">Type Tinder <span>💘</span></div>
+      <div class="round-label">${r.subtitle}</div>
+      <div class="round-name">${r.name}</div>
+    </div>
+    <div class="progress-bar">${Array.from({length:tp},(_,i)=>{let c='';if(i<state.results.length)c=state.results[i]?'done':'wrong';else if(i===gi)c='active';return`<div class="progress-dot ${c}"></div>`;}).join('')}</div>
+    <div class="card-area">
+      <div class="type-card" id="swipeCard" style="transform:translateX(${state.swipeX}px) rotate(${state.swipeX*0.08}deg);">
+        <div class="card-lang-tag ${lc.cls}">${p.lang}</div>
+        <div class="swipe-indicator match ${sm?'visible':''}">Match ✓</div>
+        <div class="swipe-indicator nope ${sn?'visible':''}">Nope ✗</div>
+        <div class="card-question">Are these types equivalent?</div>
+        <div class="versus-container">
+          <div class="type-block"><div class="type-name">${p.left.name}</div><div class="type-structure">${p.left.structure}</div></div>
+          <div class="versus-badge">VS</div>
+          <div class="type-block"><div class="type-name">${p.right.name}</div><div class="type-structure">${p.right.structure}</div></div>
+        </div>
+        <div class="card-hint">${r.desc}</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="action-btn no-btn" onclick="answer(false)">✗</button>
+      <button class="action-btn yes-btn" onclick="answer(true)">✓</button>
+    </div>
+    <div class="swipe-hint">← No Match · Match →</div>`;
+  setupSwipe();
+}
+
+function renderResult(app) {
+  const a=state.lastAnswer, ok=a.correct;
+  app.innerHTML = `
+    <div class="header"><div class="logo">Type Tinder <span>💘</span></div></div>
+    <div class="card-area"><div class="result-overlay">
+      <div class="result-emoji">${ok?'🎉':'😬'}</div>
+      <div class="result-verdict ${ok?'correct':'wrong'}">${ok?'Correct!':'Not Quite!'}</div>
+      <div class="result-explain">${a.explain}</div>
+      <button class="next-btn" onclick="nextPair()">Continue</button>
+    </div></div>`;
+}
+
+function renderFinal(app) {
+  const t=totalPairs(), pct=Math.round((state.correct/t)*100);
+  const langStr = state.selectedLangs.join(', ');
+  let e,l,s;
+  if(pct>=90){e='🏆';l='Type Safety Expert';s=`Incredible! You understand ${langStr} type systems like a compiler.`;}
+  else if(pct>=70){e='🎯';l='Type Detective';s=`Strong intuition for ${langStr}! A few tricky cases caught you off guard.`;}
+  else if(pct>=50){e='🤔';l='Type Curious';s=`Not bad! Type rules in ${langStr} can be surprising — and that's what we'll explore next.`;}
+  else{e='🌪️';l='Coercion Chaos Agent';s=`Type systems are full of surprises! Stick around for the presentation — it'll all click.`;}
+  const badges = state.selectedLangs.map(l2 => `<span class="lang-badge ${langMeta[l2].cls}">${l2}</span>`).join('');
+  app.innerHTML = `
+    <div class="header"><div class="logo">Type Tinder <span>💘</span></div></div>
+    <div class="final-screen">
+      <div class="final-emoji">${e}</div>
+      <div class="final-score">${pct}%</div>
+      <div class="final-label">${l}</div>
+      <div class="final-subtitle">${s}</div>
+      <div class="lang-badges" style="margin-top:8px">${badges}</div>
+      <div class="final-breakdown">
+        <div class="breakdown-item"><div class="breakdown-num green">${state.correct}</div><div class="breakdown-lbl">Correct</div></div>
+        <div class="breakdown-item"><div class="breakdown-num red">${state.wrong}</div><div class="breakdown-lbl">Wrong</div></div>
+        <div class="breakdown-item"><div class="breakdown-num" style="color:var(--accent2)">${t}</div><div class="breakdown-lbl">Total</div></div>
+      </div>
+      <button class="restart-btn" onclick="restart()">Play Again</button>
+    </div>`;
+}
+
+// ─── Game Logic ──────────────────────────────────────────────────────
+function goToLangSelect() { state.screen='langSelect'; state.selectedLangs=[]; render(); }
+
+function toggleLang(lang) {
+  const idx = state.selectedLangs.indexOf(lang);
+  if (idx >= 0) state.selectedLangs.splice(idx, 1);
+  else state.selectedLangs.push(lang);
+  render();
+}
+
+function startGame() {
+  if (state.selectedLangs.length === 0) return;
+  buildFilteredRounds();
+  state.roundIdx = 0; state.pairIdx = 0; state.correct = 0; state.wrong = 0;
+  state.lastAnswer = null; state.results = []; state.swipeX = 0;
+  state.screen = 'roundIntro';
+  render();
+}
+
+function startRound() { state.screen='playing'; state.pairIdx=0; state.swipeX=0; render(); }
+
+function answer(u) {
+  const p=state.filteredRounds[state.roundIdx].pairs[state.pairIdx], ok=u===p.answer;
+  if(ok) state.correct++; else state.wrong++;
+  state.results.push(ok);
+  state.lastAnswer={userSaid:u,correct:ok,explain:p.explain};
+  state.swipeX=0;
+  const c=document.getElementById('swipeCard');
+  if(c){c.classList.add(u?'card-exit-right':'card-exit-left');setTimeout(()=>{state.screen='result';render();},300);}
+  else{state.screen='result';render();}
+}
+
+function nextPair() {
+  state.pairIdx++;
+  const r = state.filteredRounds[state.roundIdx];
+  if(state.pairIdx >= r.pairs.length) {
+    state.roundIdx++;
+    if(state.roundIdx >= state.filteredRounds.length) state.screen='final';
+    else state.screen='roundIntro';
+  } else state.screen='playing';
+  state.swipeX=0; render();
+}
+
+function restart() { goToLangSelect(); }
+
+// ─── Swipe ───────────────────────────────────────────────────────────
+let tsx=0, drag=false;
+function setupSwipe() {
+  const c=document.getElementById('swipeCard'); if(!c)return;
+  c.addEventListener('touchstart',e=>{tsx=e.touches[0].clientX;drag=true;},{passive:true});
+  c.addEventListener('touchmove',e=>{if(!drag)return;state.swipeX=e.touches[0].clientX-tsx;uc();},{passive:true});
+  c.addEventListener('touchend',()=>{if(!drag)return;drag=false;rs();});
+  c.addEventListener('mousedown',e=>{
+    e.preventDefault();tsx=e.clientX;drag=true;
+    const mv=v=>{if(!drag)return;state.swipeX=v.clientX-tsx;uc();};
+    const up=()=>{drag=false;rs();document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
+    document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+  });
+}
+function uc(){const c=document.getElementById('swipeCard');if(!c)return;c.style.transform=`translateX(${state.swipeX}px) rotate(${state.swipeX*0.08}deg)`;const m=c.querySelector('.swipe-indicator.match'),n=c.querySelector('.swipe-indicator.nope');if(m)m.classList.toggle('visible',state.swipeX>40);if(n)n.classList.toggle('visible',state.swipeX<-40);c.classList.toggle('swiping-right',state.swipeX>40);c.classList.toggle('swiping-left',state.swipeX<-40);}
+function rs(){if(state.swipeX>80)return answer(true);if(state.swipeX<-80)return answer(false);state.swipeX=0;const c=document.getElementById('swipeCard');if(c){c.style.transition='transform 0.3s ease';c.style.transform='translateX(0) rotate(0)';c.classList.remove('swiping-right','swiping-left');const m=c.querySelector('.swipe-indicator.match'),n=c.querySelector('.swipe-indicator.nope');if(m)m.classList.remove('visible');if(n)n.classList.remove('visible');setTimeout(()=>{if(c)c.style.transition='';},300);}}
+
+// ─── Keyboard ────────────────────────────────────────────────────────
+document.addEventListener('keydown',e=>{
+  if(state.screen==='playing'){if(e.key==='ArrowRight')answer(true);if(e.key==='ArrowLeft')answer(false);}
+  if(state.screen==='result'&&(e.key===' '||e.key==='Enter')){e.preventDefault();nextPair();}
+  if(state.screen==='splash'&&(e.key===' '||e.key==='Enter')){e.preventDefault();goToLangSelect();}
+  if(state.screen==='roundIntro'&&(e.key===' '||e.key==='Enter')){e.preventDefault();startRound();}
+});
+
+render();
+</script>
+</body>
+</html>
